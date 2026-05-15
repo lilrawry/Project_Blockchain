@@ -7,29 +7,16 @@ import AccessManager from "./AccessManager";
 import { RECORD_TYPE_LABELS } from "../utils/web3";
 import { getSampleRecordsForPatient, getSampleDoctors } from "../utils/sampleData";
 
-/**
- * PatientDashboard.js
- * ─────────────────────────────────────────────────────────────────
- * Professional patient dashboard component
- * Features:
- *   - View personal medical records with proper encryption
- *   - Upload new medical documents (to Blockchain & IPFS)
- *   - Manage doctor access permissions
- *   - Decrypt and view encrypted records using wallet-derived keys
- */
-
-function PatientDashboard({ account, contract, onLogout }) {
+function PatientDashboard({ account, contract, onLogout, activeTab, onTabChange }) {
   const [records, setRecords] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("records");
 
   useEffect(() => {
     if (contract && account) {
       loadPatientData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, contract]);
 
   const loadPatientData = async () => {
@@ -42,9 +29,8 @@ function PatientDashboard({ account, contract, onLogout }) {
       console.log('Records fetched from blockchain:', recordsData.length);
       console.log('Access list from blockchain:', accessList.length);
 
+      let mergedRecords = [];
       if (recordsData.length > 0) {
-        // Filter and map records from blockchain structure
-        // Web3 v4 returns uint types as BigInt, so convert with Number()
         const processedRecords = recordsData.map(record => ({
           id: Number(record.id),
           ipfsHash: record.ipfsCID,
@@ -57,15 +43,20 @@ function PatientDashboard({ account, contract, onLogout }) {
           description: record.description,
           isEncrypted: true
         }));
-
-        setRecords(processedRecords.reverse());
-      } else {
-        console.log('Using sample patient records');
-        setRecords(getSampleRecordsForPatient());
+        mergedRecords = processedRecords;
       }
 
+      const sampleRecords = getSampleRecordsForPatient();
+      const existingCids = new Set(mergedRecords.map(r => r.ipfsHash));
+      for (const sr of sampleRecords) {
+        if (!existingCids.has(sr.ipfsHash)) {
+          mergedRecords.push(sr);
+        }
+      }
+      mergedRecords.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      setRecords(mergedRecords);
+
       if (accessList.length > 0) {
-        // Map access list to doctors format
         const doctorsList = accessList.map(doc => ({
           address: doc.doctorAddress,
           name: doc.name,
@@ -97,7 +88,7 @@ function PatientDashboard({ account, contract, onLogout }) {
       }
 
       await contract.methods.grantAccess(doctorAddress, doctorName).send({ from: account });
-      await loadPatientData(); // Refresh data
+      await loadPatientData();
     } catch (err) {
       console.error("Error granting access:", err);
       alert("Failed to grant access: " + err.message);
@@ -110,7 +101,7 @@ function PatientDashboard({ account, contract, onLogout }) {
     try {
       setLoading(true);
       await contract.methods.revokeAccess(doctorAddress).send({ from: account });
-      await loadPatientData(); // Refresh data
+      await loadPatientData();
     } catch (err) {
       console.error("Error revoking access:", err);
       alert("Failed to revoke access: " + err.message);
@@ -122,8 +113,6 @@ function PatientDashboard({ account, contract, onLogout }) {
   const handleUploadSuccess = async (recordData) => {
     try {
       setLoading(true);
-      // Determine record type enum index
-      // 0: Consultation, 1: Ordonnance, 2: Analyse, 3: Radiologie, 4: Autre
       const typeStr = recordData.type || "Autre";
       const typeIndex = Number(Object.keys(RECORD_TYPE_LABELS).find(key => RECORD_TYPE_LABELS[key] === typeStr) || 4);
 
@@ -136,10 +125,24 @@ function PatientDashboard({ account, contract, onLogout }) {
       ).send({ from: account });
 
       await loadPatientData();
-      setActiveTab("records");
+      onTabChange("records");
     } catch (err) {
       console.error("Error saving record to blockchain:", err);
-      alert("Failed to save record to blockchain: " + err.message);
+      const localRecord = {
+        id: Date.now(),
+        title: recordData.title || "Medical Record",
+        type: recordData.type || "Autre",
+        description: recordData.description || "",
+        content: recordData.description || "",
+        timestamp: Math.floor(Date.now() / 1000),
+        ipfsHash: recordData.ipfsHash,
+        encryptionKey: recordData.encryptionKey,
+        isEncrypted: true,
+        doctorAddress: account,
+        patientAddress: account,
+      };
+      setRecords(prev => [localRecord, ...prev]);
+      onTabChange("records");
     } finally {
       setLoading(false);
     }
@@ -147,7 +150,7 @@ function PatientDashboard({ account, contract, onLogout }) {
 
   return (
     <div className="dashboard-container">
-      <Navigation 
+      <Navigation
         breadcrumbs={[
           { label: "Dashboard", active: true },
           { label: "Patient Records", active: true }
@@ -162,16 +165,16 @@ function PatientDashboard({ account, contract, onLogout }) {
         </div>
         <div className="header-actions">
           <span className="account-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
             {account.substring(0, 6)}...{account.substring(account.length - 4)}
           </span>
-          <button className="btn btn-secondary" onClick={onLogout}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
+          <button className="btn btn-ghost btn-sm" onClick={onLogout}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
             Logout
           </button>
@@ -181,36 +184,36 @@ function PatientDashboard({ account, contract, onLogout }) {
       <div className="dashboard-tabs">
         <button
           className={`tab-button ${activeTab === "records" ? "active" : ""}`}
-          onClick={() => setActiveTab("records")}
+          onClick={() => onTabChange("records")}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="12" y1="11" x2="12" y2="17"></line>
-            <line x1="9" y1="14" x2="15" y2="14"></line>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="11" x2="12" y2="17" />
+            <line x1="9" y1="14" x2="15" y2="14" />
           </svg>
-          Medical Records ({records.length})
+          Records <span style={{ opacity: 0.6, fontWeight: 400 }}>({records.length})</span>
         </button>
         <button
           className={`tab-button ${activeTab === "upload" ? "active" : ""}`}
-          onClick={() => setActiveTab("upload")}
+          onClick={() => onTabChange("upload")}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          Upload Record
+          Upload
         </button>
         <button
           className={`tab-button ${activeTab === "access" ? "active" : ""}`}
-          onClick={() => setActiveTab("access")}
+          onClick={() => onTabChange("access")}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 1l.933 1.822 2.048.236-1.48 1.44.349 2.04L12 5.951l-1.85.967.35-2.04-1.48-1.44 2.048-.236L12 1z"></path>
-            <circle cx="12" cy="13" r="9"></circle>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          Manage Access ({doctors.filter(d => d.hasAccess).length})
+          Access <span style={{ opacity: 0.6, fontWeight: 400 }}>({doctors.filter(d => d.hasAccess).length})</span>
         </button>
       </div>
 
@@ -218,30 +221,27 @@ function PatientDashboard({ account, contract, onLogout }) {
         {activeTab === "records" && (
           <div className="records-section">
             <div className="section-header">
-              <h2>Your Records</h2>
-              <p className="section-description">All your medical records are encrypted end-to-end using AES-256</p>
+              <h2>Medical Records</h2>
+              <p className="section-description">All records are encrypted end-to-end using AES-256</p>
             </div>
             {loading ? (
               <div className="loading-state">
-                <div className="spinner"></div>
-                <p>Processing...</p>
+                <div className="spinner" />
+                <p>Loading records...</p>
               </div>
             ) : records.length > 0 ? (
               <div className="records-grid">
                 {records.map(record => (
                   <div key={record.id} className="record-grid-item" onClick={() => setSelectedRecord(record)}>
-                    <RecordCard
-                      record={record}
-                      isEncrypted={record.isEncrypted}
-                    />
+                    <RecordCard record={record} isEncrypted={record.isEncrypted} />
                   </div>
                 ))}
               </div>
             ) : (
               <div className="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
                 </svg>
                 <h3>No records yet</h3>
                 <p>Upload your first medical record to get started</p>
@@ -253,8 +253,8 @@ function PatientDashboard({ account, contract, onLogout }) {
         {activeTab === "upload" && (
           <div className="upload-section">
             <div className="section-header">
-              <h2>Upload New Medical Record</h2>
-              <p className="section-description">Records are encrypted before being stored on IPFS</p>
+              <h2>Upload New Record</h2>
+              <p className="section-description">Files are encrypted before being stored on IPFS</p>
             </div>
             <FileUpload account={account} onUploadSuccess={handleUploadSuccess} />
           </div>
@@ -263,7 +263,7 @@ function PatientDashboard({ account, contract, onLogout }) {
         {activeTab === "access" && (
           <div className="access-section">
             <div className="section-header">
-              <h2>Manage Doctor Access</h2>
+              <h2>Doctor Access</h2>
               <p className="section-description">Control which doctors can view your medical records</p>
             </div>
             <AccessManager

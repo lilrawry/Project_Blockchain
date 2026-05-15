@@ -2,17 +2,6 @@ import React, { useState, useRef } from "react";
 import { encryptData, deriveKey } from "../utils/crypto";
 import { uploadToIPFS } from "../utils/ipfs";
 
-/**
- * FileUpload.js
- * ─────────────────────────────────────────────────────────────────
- * File upload component with drag-and-drop and encryption
- * Features:
- *   - Drag-and-drop file upload
- *   - File encryption before IPFS upload
- *   - Progress bar display
- *   - Support for multiple file types
- */
-
 function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -50,7 +39,6 @@ function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" 
   };
 
   const handleFileSelect = (file) => {
-    // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       if (onUploadError) onUploadError("File size exceeds 10MB limit");
@@ -72,37 +60,38 @@ function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" 
       setIsUploading(true);
       setProgress(0);
 
-      // Read file as binary
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
           const fileData = e.target.result;
           setProgress(30);
 
-          // Derive key from account (the patient's account)
           const key = deriveKey(account);
-
-          // Encrypt file data
-          const encryptedPayload = encryptData(fileData, key);
+          const encryptedData = encryptData(fileData, key);
           setProgress(60);
 
-          // Upload to IPFS
-          const ipfsHash = await uploadToIPFS(encryptedPayload);
+          const fileWrapper = JSON.stringify({
+            name: selectedFile.name,
+            mimeType: selectedFile.type || "application/octet-stream",
+            data: encryptedData
+          });
+          const ipfsHash = await uploadToIPFS(fileWrapper);
           setProgress(90);
 
-          // Prepare record metadata
           const recordData = {
             title: recordTitle || selectedFile.name,
             ipfsHash: ipfsHash,
             encryptionKey: key,
-            type: "Autre", // Default type
+            type: "Autre",
             description: `Uploaded: ${selectedFile.name}`,
           };
 
           setProgress(100);
-          onUploadSuccess(recordData);
-          setSelectedFile(null);
-          setProgress(0);
+          setTimeout(() => {
+            onUploadSuccess(recordData);
+            setSelectedFile(null);
+            setProgress(0);
+          }, 400);
         } catch (err) {
           console.error("Upload error:", err);
           if (onUploadError) onUploadError(err.message || "Upload failed");
@@ -134,7 +123,13 @@ function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" 
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <div className="upload-icon">📄</div>
+        <div className="upload-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#48cae4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </div>
         <p className="upload-text">
           {selectedFile
             ? `Selected: ${selectedFile.name}`
@@ -151,23 +146,19 @@ function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" 
       </div>
 
       {selectedFile && (
-        <div style={{ marginTop: "var(--spacing-lg)" }}>
-          <div
-            style={{
-              display: "flex",
-              gap: "var(--spacing-md)",
-              marginBottom: "var(--spacing-md)",
-            }}
-          >
+        <div style={{ marginTop: "var(--spacing-2xl)" }}>
+          <div style={{ display: "flex", gap: "var(--spacing-md)", marginBottom: "var(--spacing-lg)" }}>
             <button
               className="btn btn-primary"
               onClick={handleUpload}
               disabled={isUploading}
             >
-              {isUploading ? "Uploading..." : "Upload & Encrypt"}
+              {isUploading ? (
+                <><span className="loading-spinner" style={{ width: 14, height: 14, borderWidth: 1.5, marginRight: 4 }} /> Uploading...</>
+              ) : "Upload & Encrypt"}
             </button>
             <button
-              className="btn btn-secondary"
+              className="btn btn-outline"
               onClick={() => {
                 setSelectedFile(null);
                 setProgress(0);
@@ -179,14 +170,14 @@ function FileUpload({ account, onUploadSuccess, onUploadError, recordTitle = "" 
           </div>
 
           {isUploading && (
-            <div>
+            <div className="animate-fade-in">
               <div className="progress-bar">
                 <div
                   className="progress-fill"
                   style={{ width: `${progress}%` }}
-                ></div>
+                />
               </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--neutral-400)", marginTop: "var(--spacing-sm)" }}>
+              <p style={{ fontSize: "0.8rem", color: "var(--neutral-600)", marginTop: "var(--spacing-sm)" }}>
                 {progress}% Complete
               </p>
             </div>

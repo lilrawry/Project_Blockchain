@@ -93,6 +93,18 @@ export function decryptData(encryptedPayload, key) {
   return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
+export function decryptToBase64(encryptedPayload, key) {
+  const [ivHex, cipherBase64] = encryptedPayload.split("::");
+  if (!ivHex || !cipherBase64) throw new Error("Invalid encrypted payload");
+  const iv = CryptoJS.enc.Hex.parse(ivHex);
+  const decrypted = CryptoJS.AES.decrypt(cipherBase64, CryptoJS.enc.Hex.parse(key), {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  return decrypted.toString(CryptoJS.enc.Base64);
+}
+
 // ──────────────────────────────────────────────────────────────────
 //  Helpers fichiers (File → ArrayBuffer → chiffré)
 // ──────────────────────────────────────────────────────────────────

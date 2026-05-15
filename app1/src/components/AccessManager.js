@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 
-/**
- * AccessManager.js
- * ─────────────────────────────────────────────────────────────────
- * Component for managing doctor access to patient records
- * Features:
- *   - Display list of authorized doctors
- *   - Grant access to new doctors
- *   - Revoke access from existing doctors
- *   - Show access timestamps
- */
-
 function AccessManager({
   recordId,
   currentAccessList = [],
@@ -38,7 +27,6 @@ function AccessManager({
       setDoctorAddress("");
       setShowGrantForm(false);
 
-      // Clear message after 3 seconds
       const t1 = setTimeout(() => setMessage(""), 3000);
       timeoutsRef.current.push(t1);
     } catch (err) {
@@ -56,7 +44,6 @@ function AccessManager({
       await onRevokeAccess(recordId, docAddress);
       setMessage("Access revoked successfully!");
 
-      // Clear message after 3 seconds
       const t2 = setTimeout(() => setMessage(""), 3000);
       timeoutsRef.current.push(t2);
     } catch (err) {
@@ -90,13 +77,17 @@ function AccessManager({
 
   return (
     <div className="access-manager">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--spacing-lg)" }}>
-        <h3 style={{ margin: 0 }}>Access Management</h3>
+      <div className="flex-between mb-lg">
+        <h4 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Authorized Doctors</h4>
         {isPatient && !showGrantForm && (
           <button
             className="btn btn-primary btn-sm"
             onClick={() => setShowGrantForm(true)}
           >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             Grant Access
           </button>
         )}
@@ -105,17 +96,18 @@ function AccessManager({
       {message && (
         <div
           style={{
-            padding: "var(--spacing-md)",
-            borderRadius: "var(--radius-md)",
+            padding: "var(--spacing-md) var(--spacing-lg)",
+            borderRadius: "var(--radius-lg)",
             marginBottom: "var(--spacing-lg)",
             background: message.includes("Error")
-              ? "rgba(244, 67, 54, 0.1)"
-              : "rgba(0, 230, 118, 0.1)",
+              ? "rgba(239, 68, 68, 0.06)"
+              : "rgba(0, 230, 118, 0.06)",
             border: message.includes("Error")
-              ? "1px solid #f44336"
-              : "1px solid #00e676",
-            color: message.includes("Error") ? "#ff6b6b" : "#33ff8d",
-            fontSize: "0.9rem",
+              ? "1px solid rgba(239, 68, 68, 0.15)"
+              : "1px solid rgba(0, 230, 118, 0.15)",
+            color: message.includes("Error") ? "#fca5a5" : "#69f0ae",
+            fontSize: "0.85rem",
+            animation: "slideDown 0.2s ease",
           }}
         >
           {message}
@@ -125,14 +117,15 @@ function AccessManager({
       {showGrantForm && (
         <div
           style={{
-            padding: "var(--spacing-lg)",
-            background: "rgba(0, 217, 255, 0.05)",
-            border: "1px solid var(--primary-accent)",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "var(--spacing-lg)",
+            padding: "var(--spacing-xl)",
+            background: "rgba(0, 180, 216, 0.03)",
+            border: "1px solid rgba(0, 180, 216, 0.12)",
+            borderRadius: "var(--radius-xl)",
+            marginBottom: "var(--spacing-xl)",
+            animation: "slideDown 0.2s ease",
           }}
         >
-          <h4 style={{ marginBottom: "var(--spacing-md)" }}>Grant Access to Doctor</h4>
+          <h5 style={{ marginBottom: "var(--spacing-lg)", color: "var(--neutral-200)" }}>Grant Access to Doctor</h5>
           <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
             <input
               type="text"
@@ -143,14 +136,14 @@ function AccessManager({
               style={{ flex: 1 }}
             />
             <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm"
               onClick={handleGrantAccess}
               disabled={isLoading || !doctorAddress}
             >
               Grant
             </button>
             <button
-              className="btn btn-secondary"
+              className="btn btn-outline btn-sm"
               onClick={() => {
                 setShowGrantForm(false);
                 setDoctorAddress("");
@@ -166,10 +159,15 @@ function AccessManager({
       <div className="access-list">
         {currentAccessList && currentAccessList.length > 0 ? (
           currentAccessList.map((access, idx) => (
-            <div key={idx} className="access-item">
+            <div
+              key={idx}
+              className="access-item"
+              style={{ animation: `slideUp 0.2s ease ${idx * 0.05}s both` }}
+            >
               <div className="access-info">
-                <div className="access-email">
-                  <strong>Doctor:</strong> {truncateAddress(access.doctorAddress || access.address)}
+                <div className="access-label">Doctor</div>
+                <div className="access-address">
+                  {truncateAddress(access.doctorAddress || access.address)}
                 </div>
                 <div className="access-date">
                   Granted: {formatDate(access.grantedAt || access.timestamp)}
@@ -193,13 +191,13 @@ function AccessManager({
         ) : (
           <div
             style={{
-              padding: "var(--spacing-lg)",
+              padding: "var(--spacing-2xl)",
               textAlign: "center",
-              color: "var(--neutral-500)",
-              fontSize: "0.9rem",
+              color: "var(--neutral-600)",
+              fontSize: "0.875rem",
             }}
           >
-            No doctors have access to this record yet
+            No doctors have access yet
           </div>
         )}
       </div>

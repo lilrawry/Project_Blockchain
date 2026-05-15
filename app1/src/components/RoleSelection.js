@@ -1,70 +1,55 @@
 import React from "react";
 
-/**
- * RoleSelection.js
- * ─────────────────────────────────────────────────────────────────
- * Role selection component for first-time users
- * Features:
- *   - Choice between Patient and Doctor roles
- *   - Beautiful card design with hover effects
- *   - Callback to parent to update user role
- */
-
 function RoleSelection({ account, onSelectRole }) {
   return (
     <div className="role-selection">
       <div className="role-container">
         <div className="role-header">
-          <h1 style={{ fontSize: "2.25rem", marginBottom: "0.5rem" }}>
-            Welcome to MedRecords
-          </h1>
-          <p style={{ color: "var(--neutral-400)", fontSize: "1rem" }}>
-            Select your role to continue
-          </p>
+          <h1>Welcome to MedRecords</h1>
+          <p>Select your role to access the decentralized health platform</p>
         </div>
 
         <div className="role-options">
-          {/* Patient Option */}
           <div
-            className="role-card patient glass-lg"
+            className="role-card patient"
             onClick={() => onSelectRole("patient")}
-            style={{ cursor: "pointer" }}
           >
-            <div className="role-icon">🏥</div>
-            <h3 className="role-title">Patient</h3>
+            <div className="role-icon-wrapper">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#48cae4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 14l-7 4-7-4M19 10l-7 4-7-4M12 3L5 7l7 4 7-4-7-4z" />
+                <path d="M5 17l7 4 7-4M5 13l7 4 7-4" />
+              </svg>
+            </div>
+            <h3 className="role-title" style={{ color: "var(--primary-accent-lighter)" }}>Patient</h3>
             <p className="role-description">
-              View your medical records, manage doctor access, and upload health documents
+              View your medical records, manage doctor access, and upload health documents securely
             </p>
-            <button
-              className="btn btn-primary"
-              style={{ marginTop: "var(--spacing-lg)", width: "100%" }}
-            >
+            <button className="btn btn-primary">
               Continue as Patient
             </button>
           </div>
 
-          {/* Doctor Option */}
           <div
-            className="role-card doctor glass-lg"
+            className="role-card doctor"
             onClick={() => onSelectRole("doctor")}
-            style={{ cursor: "pointer" }}
           >
-            <div className="role-icon">👨‍⚕️</div>
-            <h3 className="role-title">Doctor</h3>
+            <div className="role-icon-wrapper">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#69f0ae" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+              </svg>
+            </div>
+            <h3 className="role-title" style={{ color: "var(--secondary-light)" }}>Doctor</h3>
             <p className="role-description">
-              Access patient records with permission, and upload diagnoses and treatment plans
+              Access patient records with permission, review diagnoses, and update treatment plans
             </p>
-            <button
-              className="btn btn-success"
-              style={{ marginTop: "var(--spacing-lg)", width: "100%" }}
-            >
+            <button className="btn btn-success">
               Continue as Doctor
             </button>
           </div>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: "var(--spacing-2xl)" }}>
-          <p style={{ color: "var(--neutral-500)", fontSize: "0.85rem" }}>
+        <div className="role-wallet-info">
+          <p>
             Connected wallet: <code>{account.substring(0, 10)}...{account.slice(-8)}</code>
           </p>
         </div>
