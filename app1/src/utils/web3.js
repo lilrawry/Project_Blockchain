@@ -116,19 +116,25 @@ export function listenMetaMaskEvents(onAccountChange, onNetworkChange) {
  * @returns {object} subscription (appellez .unsubscribe() pour arrêter)
  */
 export function listenToEvents(contract, onEvent) {
-  // Events passés (depuis le bloc 0)
-  contract.getPastEvents("allEvents", { fromBlock: 0, toBlock: "latest" })
-    .then((events) => {
-      events.forEach((ev) => onEvent(ev.event, ev));
+  const eventNames = ["RecordAdded", "AccessGranted", "AccessRevoked", "RoleRegistered"];
+
+  eventNames.forEach((name) => {
+    contract.getPastEvents(name, { fromBlock: 0, toBlock: "latest" })
+      .then((events) => events.forEach((ev) => onEvent(ev.event, ev)))
+      .catch((err) => console.error(`getPastEvents ${name} error:`, err));
+  });
+
+  const subs = eventNames.map((name) =>
+    contract.events[name]({ fromBlock: "latest" })
+      .on("data",  (ev)  => onEvent(ev.event, ev))
+      .on("error", (err) => console.error(`Event ${name} error:`, err))
+  );
+
+  return {
+    unsubscribe: () => subs.forEach((s) => {
+      if (s && typeof s.unsubscribe === "function") s.unsubscribe();
     })
-    .catch((err) => console.error("getPastEvents error:", err));
-
-  // Events futurs
-  const sub = contract.events.allEvents({ fromBlock: "latest" })
-    .on("data",  (ev)  => onEvent(ev.event, ev))
-    .on("error", (err) => console.error("Event error:", err));
-
-  return sub;
+  };
 }
 
 // ──────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { initWeb3, resetInstance } from "./utils/web3";
+import { initWeb3 } from "./utils/web3";
 import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/LoadingScreen";
 import RoleSelection from "./components/RoleSelection";
@@ -10,11 +10,10 @@ import "./App.css";
 function App() {
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState(null); // "patient" | "doctor" | null
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [web3Instance, setWeb3Instance] = useState(null);
-  const [showRolePicker, setShowRolePicker] = useState(false);
 
   useEffect(() => {
     initializeBlockchain();
@@ -25,27 +24,22 @@ function App() {
     try {
       setLoading(true);
       setError("");
-
+      
       if (!window.ethereum) {
         setError("MetaMask not detected. Please install MetaMask extension.");
         setLoading(false);
         return;
       }
 
-      const { web3, account, contract } = await initWeb3();
-
+      const { web3, account, contract, networkId } = await initWeb3();
+      
       setWeb3Instance(web3);
       setAccount(account);
       setContract(contract);
-
-      // On initial page load, auto-detect role. On manual reconnect, show role picker.
-      if (showRolePicker) {
-        setUserRole(null);
-        setLoading(false);
-        return;
-      }
-
+      
+      // Check if user has role registered in contract
       await checkUserRole(contract, account);
+      
       setLoading(false);
     } catch (err) {
       console.error("Blockchain initialization error:", err);
@@ -56,19 +50,18 @@ function App() {
 
   const checkUserRole = async (contractInstance, userAccount) => {
     try {
+      // Try to fetch user role from contract
+      // This assumes your MedicalRecords contract has a method to get user role
+      // If not implemented, user can select role in RoleSelection component
+      
+      // Placeholder - will be implemented based on your contract ABI
       const role = await contractInstance.methods
-        .getRole(userAccount)
-        .call();
-
-      console.log("User role from contract:", role);
-
-      const roleNum = Number(role);
-      if (roleNum === 1) {
-        setUserRole("patient");
-      } else if (roleNum === 2) {
-        setUserRole("doctor");
-      } else {
-        setUserRole(null);
+        .getUserRole(userAccount)
+        .call()
+        .catch(() => null);
+      
+      if (role) {
+        setUserRole(role === "0" ? "patient" : "doctor");
       }
     } catch (err) {
       console.warn("Could not fetch user role from contract", err);
@@ -84,10 +77,8 @@ function App() {
         setUserRole(null);
       } else {
         setAccount(accounts[0]);
-        resetInstance();
-        setShowRolePicker(true);
-        setLoading(true);
-        window.location.reload();
+        // Reset role when account changes
+        setUserRole(null);
       }
     });
 
@@ -96,26 +87,11 @@ function App() {
     });
   };
 
-  const handleRoleSelect = async (role) => {
-    try {
-      setLoading(true);
-      const roleId = role === "patient" ? 1 : 2;
-
-      await contract.methods.registerRole(roleId).send({ from: account });
-
-      setUserRole(role);
-      setShowRolePicker(false);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error registering role:", err);
-      alert("Failed to register role on blockchain: " + (err.message || "Unknown error"));
-      setLoading(false);
-    }
+  const handleRoleSelect = (role) => {
+    setUserRole(role);
   };
 
   const handleDisconnect = () => {
-    resetInstance();
-    setShowRolePicker(true);
     setAccount("");
     setUserRole(null);
     setContract(null);
@@ -167,11 +143,11 @@ function App() {
   return (
     <>
       <Navbar account={account} userRole={userRole} onDisconnect={handleDisconnect} />
-      <div style={{ paddingTop: "70px" }}>
+      <div style={{ paddingTop: "80px" }}>
         {userRole === "patient" ? (
-          <PatientDashboard account={account} contract={contract} onLogout={handleDisconnect} />
+          <PatientDashboard account={account} contract={contract} web3={web3Instance} />
         ) : (
-          <DoctorDashboard account={account} contract={contract} onLogout={handleDisconnect} web3={web3Instance} />
+          <DoctorDashboard account={account} contract={contract} web3={web3Instance} />
         )}
       </div>
     </>

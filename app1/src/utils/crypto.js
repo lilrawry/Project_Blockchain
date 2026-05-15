@@ -146,9 +146,15 @@ export function decryptFile(rawPayload, walletAddress) {
   const metaStr = decryptData(parsed.meta, key);
   const { mimeType, name } = JSON.parse(metaStr);
 
-  const dataStr = decryptData(parsed.data, key);
-  // Reconvertir en Blob URL pour téléchargement
-  const dataUrl = `data:${mimeType};base64,${btoa(dataStr)}`;
+  // Decrypt binary data using CryptoJS base64 (handles non-UTF8 binary content)
+  const [ivHex, cipherBase64] = parsed.data.split("::");
+  const iv = CryptoJS.enc.Hex.parse(ivHex);
+  const decrypted = CryptoJS.AES.decrypt(cipherBase64, CryptoJS.enc.Hex.parse(key), {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  const dataUrl = `data:${mimeType};base64,${decrypted.toString(CryptoJS.enc.Base64)}`;
 
   return { name, mimeType, dataUrl };
 }

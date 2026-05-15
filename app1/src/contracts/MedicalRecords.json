@@ -141,7 +141,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -160,7 +161,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -192,7 +194,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -316,7 +319,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -382,7 +386,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -406,7 +411,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -441,7 +447,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -454,7 +461,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -473,7 +481,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"doctorName\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"AccessGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"AccessRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"recordId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsCID\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"enum MedicalRecords.RecordType\",\"name\":\"recordType\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"RecordAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enum MedicalRecords.Role\",\"name\":\"role\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"RoleRegistered\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsCID\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"encryptedKey\",\"type\":\"string\"},{\"internalType\":\"enum MedicalRecords.RecordType\",\"name\":\"rType\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"}],\"name\":\"addRecord\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAuthorizedDoctors\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"doctorAddress\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"grantedAt\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"active\",\"type\":\"bool\"}],\"internalType\":\"struct MedicalRecords.DoctorInfo[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMyRecords\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"ipfsCID\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"encryptedKey\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"patientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"doctorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"enum MedicalRecords.RecordType\",\"name\":\"recordType\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"}],\"internalType\":\"struct MedicalRecords.Record[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"}],\"name\":\"getPatientRecordCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"}],\"name\":\"getPatientRecords\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"ipfsCID\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"encryptedKey\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"patientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"doctorAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"enum MedicalRecords.RecordType\",\"name\":\"recordType\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"}],\"internalType\":\"struct MedicalRecords.Record[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"getRole\",\"outputs\":[{\"internalType\":\"enum MedicalRecords.Role\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalRecords\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"doctorName\",\"type\":\"string\"}],\"name\":\"grantAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"isAuthorized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum MedicalRecords.Role\",\"name\":\"role\",\"type\":\"uint8\"}],\"name\":\"registerRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"revokeAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"userRole\",\"outputs\":[{\"internalType\":\"enum MedicalRecords.Role\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Blockchain Medical Project\",\"kind\":\"dev\",\"methods\":{\"addRecord(address,string,string,uint8,string)\":{\"params\":{\"description\":\"Description textuelle du dossier\",\"encryptedKey\":\"Cl\\u00e9 AES chiffr\\u00e9e c\\u00f4t\\u00e9 client\",\"ipfsCID\":\"CID IPFS du fichier chiffr\\u00e9\",\"patient\":\"Adresse du patient concern\\u00e9\",\"rType\":\"Type de dossier (enum RecordType)\"}},\"getPatientRecords(address)\":{\"params\":{\"patient\":\"Adresse du patient\"}},\"grantAccess(address,string)\":{\"params\":{\"doctor\":\"Adresse wallet du m\\u00e9decin\",\"doctorName\":\"Nom du m\\u00e9decin (stock\\u00e9 on-chain pour affichage)\"}},\"registerRole(uint8)\":{\"params\":{\"role\":\"Le r\\u00f4le choisi\"}},\"revokeAccess(address)\":{\"params\":{\"doctor\":\"Adresse wallet du m\\u00e9decin \\u00e0 r\\u00e9voquer\"}}},\"title\":\"MedicalRecords - Syst\\u00e8me d\\u00e9centralis\\u00e9 de gestion de dossiers m\\u00e9dicaux\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addRecord(address,string,string,uint8,string)\":{\"notice\":\"Ajoute un dossier m\\u00e9dical (appelant = patient OU m\\u00e9decin autoris\\u00e9)\"},\"getAuthorizedDoctors()\":{\"notice\":\"Liste des m\\u00e9decins autoris\\u00e9s (actifs) d'un patient\"},\"getMyRecords()\":{\"notice\":\"R\\u00e9cup\\u00e8re tous les dossiers du patient appelant\"},\"getPatientRecordCount(address)\":{\"notice\":\"Nombre de dossiers d'un patient\"},\"getPatientRecords(address)\":{\"notice\":\"Un m\\u00e9decin r\\u00e9cup\\u00e8re les dossiers d'un patient (si autoris\\u00e9)\"},\"getRole(address)\":{\"notice\":\"Retourne le r\\u00f4le d'une adresse\"},\"getTotalRecords()\":{\"notice\":\"Nombre total de dossiers cr\\u00e9\\u00e9s (tous patients confondus)\"},\"grantAccess(address,string)\":{\"notice\":\"Le patient accorde l'acc\\u00e8s \\u00e0 un m\\u00e9decin\"},\"isAuthorized(address,address)\":{\"notice\":\"V\\u00e9rifie si un m\\u00e9decin est autoris\\u00e9 pour un patient\"},\"registerRole(uint8)\":{\"notice\":\"Enregistre le r\\u00f4le de l'utilisateur (Patient = 1, Doctor = 2)\"},\"revokeAccess(address)\":{\"notice\":\"Le patient r\\u00e9voque l'acc\\u00e8s d'un m\\u00e9decin\"}},\"notice\":\"Stocke les r\\u00e9f\\u00e9rences IPFS de fichiers m\\u00e9dicaux chiffr\\u00e9s et g\\u00e8re         les droits d'acc\\u00e8s entre patients et m\\u00e9decins.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/MedicalRecords.sol\":\"MedicalRecords\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/MedicalRecords.sol\":{\"keccak256\":\"0xdd2ce5a81424676e7b02ca5d9a7386be8b2b28e28d128b68bc23336d3b02a65c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fbe3d9125fae2eda0e5c78ada3548625343176aed7dd0d442169b6a33a3bfa63\",\"dweb:/ipfs/QmQswm7PDnkfd8EqnQ1vmfgVJv3HbibCmERKT4hNpCvkKq\"]}},\"version\":1}",
@@ -20808,9 +20817,17 @@
     "name": "solc",
     "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xcFeD9CdD03dDa75a8Be2e47DAB7Dd9d49c91bff6",
+      "transactionHash": "0xec6d095afa3532319661ded7dd18909ecef3815f0b6cdc850636e4f145912cad"
+    }
+  },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-05-11T15:41:19.016Z",
+  "updatedAt": "2026-05-15T08:58:18.883Z",
+  "networkType": "ethereum",
   "devdoc": {
     "author": "Blockchain Medical Project",
     "kind": "dev",

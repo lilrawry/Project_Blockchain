@@ -1,36 +1,9 @@
-# Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-
-# Truffle build artifacts
 build/
-dist/
-
-# Environment variables
 .env
 .env.local
 .env.*.local
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Logs
+*.db
 *.log
-npm-debug.log*
-yarn-debug.log*
-
-# Testing
+.DS_Store
 coverage/
-
-# Misc
-.cache/
-temp/
